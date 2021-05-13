@@ -32,13 +32,13 @@ impl Passport {
             range.contains(&parsed_value)
         };
 
-        match prop {
+        return match prop {
             // (Birth Year) - four digits; at least 1920 and at most 2002.
-            "byr" => return is_between(val, 1920..=2002),
+            "byr" => is_between(val, 1920..=2002),
             // (Issue Year) - four digits; at least 2010 and at most 2020.
-            "iyr" => return is_between(val, 2010..=2020),
+            "iyr" => is_between(val, 2010..=2020),
             // (Expiration Year) - four digits; at least 2020 and at most 2030.
-            "eyr" => return is_between(val, 2020..=2030),
+            "eyr" => is_between(val, 2020..=2030),
             // [> (Height) - a number followed by either cm or in:
             // If cm, the number must be at least 150 and at most 193.
             // If in, the number must be at least 59 and at most 76. */
@@ -65,21 +65,21 @@ impl Passport {
             "hcl" => {
                 let re = Regex::new(r"^#[a-f0-9]{6}$").unwrap();
 
-                return re.is_match(val);
+                re.is_match(val)
             }
             // (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
             "ecl" => match val {
-                "amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth" => return true,
-                _ => return false,
+                "amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth" => true,
+                _ => false,
             },
             // (Passport ID) - a nine-digit number, including leading zeroes.
             "pid" => {
                 let re = Regex::new(r"^\d{9}$").unwrap();
 
-                return re.is_match(val);
+                re.is_match(val)
             }
-            _ => return false,
-        }
+            _ => false,
+        };
     }
 
     pub fn is_valid(&self) -> bool {
