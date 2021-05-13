@@ -32,7 +32,7 @@ impl Passport {
             range.contains(&parsed_value)
         };
 
-        return match prop {
+        match prop {
             // (Birth Year) - four digits; at least 1920 and at most 2002.
             "byr" => is_between(val, 1920..=2002),
             // (Issue Year) - four digits; at least 2010 and at most 2020.
@@ -79,7 +79,7 @@ impl Passport {
                 re.is_match(val)
             }
             _ => false,
-        };
+        }
     }
 
     pub fn is_valid(&self) -> bool {
