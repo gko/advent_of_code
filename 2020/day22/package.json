@@ -1,0 +1,14 @@
+{
+  "name": "day2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node --stack-size=5000 -- node_modules/.bin/ts-node index.ts"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ts-node": "^9.1.1"
+  }
+}
