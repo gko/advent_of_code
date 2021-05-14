@@ -1,6 +1,4 @@
-#![allow(dead_code)]
 #![allow(unused_must_use)]
-#![allow(dead_code)]
 use std::error::Error;
 use std::fs::read_to_string;
 use std::io;
