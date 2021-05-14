@@ -1,7 +1,7 @@
-use std::fmt::{Display, Result, Formatter};
 use std::collections::HashMap;
+use std::fmt::{Display, Formatter, Result};
 
-use super::{ Passport, PROPS };
+use super::Passport;
 
 impl Display for Passport {
     fn fmt(&self, f: &mut Formatter) -> Result {
@@ -20,22 +20,28 @@ impl Display for Passport {
         .cloned()
         .collect();
 
-        let mut output = String::from(DELIM);
-        output += "Passport:";
+        write!(
+            f,
+            "{}\nPassport:",
+            DELIM
+        );
 
-        for prop in &PROPS {
+        for prop in self.0.keys() {
             if let Some(val) = self.0.get(&prop.to_string()) {
-                output += "\n  ";
-                output += props_desciption.get(prop).unwrap();
-                output += ": ";
-                output += val;
+                write!(
+                    f,
+                    "\n  {:?}: {:?}",
+                    props_desciption.get(&prop.as_str()).unwrap(),
+                    val
+                );
             }
         }
 
-        output += "\nis valid: ";
-        output += &self.is_valid().to_string();
-        output += DELIM;
-
-        write!(f, "{}", output)
+        write!(
+            f,
+            "\n  is valid: {}\n{}",
+            &self.is_valid().to_string(),
+            DELIM
+        )
     }
 }

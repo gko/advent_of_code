@@ -2,81 +2,89 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::ops::RangeInclusive;
 
-mod deref;
 mod display;
+mod deref;
 mod parse;
 #[cfg(test)]
 mod test;
 
-pub const PROPS: [&str; 7] = [
-    "byr", // Birth Year
-    "iyr", // Issue Year
-    "eyr", // Expiration Year
-    "hgt", // Height
-    "hcl", // Hair Color
-    "ecl", // Eye Color
-    "pid", // Passport ID
-];
+const NECESSARY_PROPS: [&str; 7] = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"];
 
 #[derive(Debug, Clone)]
-pub struct Passport(HashMap<String, String>);
+pub enum PassportProp {
+    BirthYear(Option<u16>),
+    IssueYear(Option<u16>),
+    ExpirationYear(Option<u16>),
+    Height(Option<String>),
+    HairColor(Option<String>),
+    EyeColor(Option<String>),
+    PassportID(Option<String>),
+    CountryCode(Option<u8>),
+}
+
+#[derive(Debug, Clone)]
+pub struct Passport(HashMap<String, PassportProp>);
 
 impl Passport {
-    fn is_prop_valid(prop: &str, val: &str) -> bool {
-        let is_between = |num: &str, range: RangeInclusive<i32>| -> bool {
-            let parsed_value = num.trim().parse::<i32>().unwrap_or_else(|err| {
-                println!("{:#?} : {}", err, num);
-                0
-            });
-
-            range.contains(&parsed_value)
-        };
-
+    fn is_prop_valid(prop: PassportProp) -> bool {
         match prop {
             // (Birth Year) - four digits; at least 1920 and at most 2002.
-            "byr" => is_between(val, 1920..=2002),
+            PassportProp::BirthYear(prop) => {
+                let byr = prop.unwrap_or_else(|| 0);
+                RangeInclusive::from(1920..=2002).contains(&byr)
+            }
             // (Issue Year) - four digits; at least 2010 and at most 2020.
-            "iyr" => is_between(val, 2010..=2020),
+            PassportProp::IssueYear(prop) => {
+                let byr = prop.unwrap_or_else(|| 0);
+                RangeInclusive::from(2010..=2020).contains(&byr)
+            }
             // (Expiration Year) - four digits; at least 2020 and at most 2030.
-            "eyr" => is_between(val, 2020..=2030),
+            PassportProp::ExpirationYear(prop) => {
+                let byr = prop.unwrap_or_else(|| 0);
+                RangeInclusive::from(2020..=2030).contains(&byr)
+            }
             // [> (Height) - a number followed by either cm or in:
             // If cm, the number must be at least 150 and at most 193.
             // If in, the number must be at least 59 and at most 76. */
-            "hgt" => {
+            PassportProp::Height(prop) => {
+                let hgt = prop.unwrap_or_else(|| String::from(""));
                 let re = Regex::new(r"(?P<height>\d{2,3})(?P<measure>[a-z]{2})").unwrap();
 
-                match re.captures(val) {
+                match re.captures(&hgt[..]) {
                     Some(capture) => {
-                        let height = &capture["height"];
+                        let height = &capture["height"].parse::<u16>().unwrap_or_else(|_| 0);
                         let measure = &capture["measure"];
 
-                        if measure == "cm" {
-                            return is_between(height, 150..=193);
-                        } else if measure == "in" {
-                            return is_between(height, 59..=76);
+                        match measure {
+                            "cm" => RangeInclusive::from(150..=193).contains(height),
+                            "in" => RangeInclusive::from(59..=76).contains(height),
+                            _ => false,
                         }
-
-                        return false;
                     }
                     _ => return false,
                 }
             }
             // (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
-            "hcl" => {
+            PassportProp::HairColor(prop) => {
+                let hcl = prop.unwrap_or_else(|| String::from(""));
                 let re = Regex::new(r"^#[a-f0-9]{6}$").unwrap();
 
-                re.is_match(val)
+                re.is_match(&hcl)
             }
             // (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
-            "ecl" => match val {
-                "amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth" => true,
-                _ => false,
-            },
+            PassportProp::EyeColor(prop) => {
+                let ecl = prop.unwrap_or_else(|| String::from(""));
+
+                match ecl.as_ref() {
+                    "amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth" => true,
+                    _ => false,
+                }
+            }
             // (Passport ID) - a nine-digit number, including leading zeroes.
-            "pid" => {
+            PassportProp::PassportID(prop) => {
                 let re = Regex::new(r"^\d{9}$").unwrap();
 
-                re.is_match(val)
+                re.is_match(&prop.unwrap_or_else(|| String::from("")))
             }
             _ => false,
         }
@@ -85,13 +93,13 @@ impl Passport {
     pub fn is_valid(&self) -> bool {
         let derefed = &*self;
 
-        for prop in &PROPS {
+        for prop in NECESSARY_PROPS.iter() {
             let val = derefed.get(&prop.to_string());
 
             match val {
                 None => return false,
                 Some(val) => {
-                    if !Passport::is_prop_valid(prop, val) {
+                    if !Passport::is_prop_valid(val.clone()) {
                         return false;
                     }
                 }

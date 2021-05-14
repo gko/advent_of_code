@@ -13,13 +13,7 @@ impl Passports {
             .0
             .clone()
             .into_iter()
-            .filter(|pass| {
-                if pass.is_valid() {
-                    println!("{}", pass);
-                }
-
-                pass.is_valid()
-            })
+            .filter(|pass| pass.is_valid())
             .collect::<Vec<Passport>>()
             .len();
 
