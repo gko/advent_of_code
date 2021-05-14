@@ -14,8 +14,7 @@ impl Passports {
             .clone()
             .into_iter()
             .filter(|pass| pass.is_valid())
-            .collect::<Vec<Passport>>()
-            .len();
+            .count();
 
         *valid
     }

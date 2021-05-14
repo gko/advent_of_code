@@ -9,7 +9,7 @@ impl FromStr for Passport {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut passport_data = HashMap::new();
-        let props: Vec<String> = s.split_whitespace().map(|s| String::from(s)).collect();
+        let props: Vec<String> = s.split_whitespace().map(String::from).collect();
 
         for prop in props {
             let (name, val) = prop.splitn(2, ':').collect_tuple().unwrap();
