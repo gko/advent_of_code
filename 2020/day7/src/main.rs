@@ -99,6 +99,20 @@ fn count_bags(bag_name: &str, bags: &Bags, except: &mut HashSet<Bag>) -> u16 {
     })
 }
 
+fn count_containing(bag_name: &str, bags: &Bags, initial_name: &str) -> u32 {
+    let bag = bags.iter().find(|b| b.name == bag_name).unwrap();
+
+    if let Some(contains) = bag.clone().contains {
+        contains.iter().fold(0, |acc, (count, _bag)| {
+            let _count = count_containing(&_bag.name, bags, initial_name);
+
+            acc + u32::from(*count) + (u32::from(*count) * _count)
+        })
+    } else {
+        0
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let input_data = read_input().unwrap();
 
@@ -108,8 +122,13 @@ fn main() -> Result<(), Box<dyn Error>> {
         .collect();
 
     println!(
-        "{:#?}",
+        "Part 1:\n {:#?}",
         count_bags("shiny gold", &bags, &mut HashSet::new())
+    );
+
+    println!(
+        "\nPart 2:\n {:#?}",
+        count_containing("shiny gold", &bags, "shiny gold")
     );
 
     Ok(())
