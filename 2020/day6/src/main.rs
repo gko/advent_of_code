@@ -23,7 +23,36 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .collect::<Vec<String>>();
 
-    println!("Part 1:\n {:#?}", groups.iter().fold(0, |acc, s| acc + s.len()));
+    println!(
+        "Part 1:\n {:#?}",
+        groups.iter().fold(0, |acc, s| acc + s.len())
+    );
+
+    let groups = input_data
+        .split("\n\n")
+        .map(|s| {
+            let mut questions: HashSet<char> = HashSet::new();
+            let all_groups_answers = s.trim().replace('\n', "");
+
+            for ch in all_groups_answers.chars() {
+                questions.insert(ch);
+            }
+
+            let group_length = s.trim().split("\n").count();
+
+            questions
+                .iter()
+                .filter(|q| {
+                    all_groups_answers.chars().filter(|ch| ch == *q).count() == group_length
+                })
+                .count()
+        })
+        .collect::<Vec<usize>>();
+
+    println!(
+        "\nPart 2:\n {:#?}",
+        groups.iter().fold(0, |acc, num| acc + num)
+    );
 
     Ok(())
 }
