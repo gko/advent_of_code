@@ -18,7 +18,7 @@ fn find_place(instructions: &str) -> Place {
     let mut rows = 1..step;
     let mut row: u16 = 0;
 
-    for letter in row_instructions.to_owned() {
+    for letter in row_instructions {
         step /= 2;
         row = match letter {
             'F' => {
@@ -44,7 +44,7 @@ fn find_place(instructions: &str) -> Place {
     rows = 1..step;
     let mut place: u16 = 0;
 
-    for letter in place_instructions.to_owned() {
+    for letter in place_instructions {
         step /= 2;
         place = match letter {
             'L' => {
