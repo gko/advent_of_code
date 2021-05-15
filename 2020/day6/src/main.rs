@@ -38,7 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 questions.insert(ch);
             }
 
-            let group_length = s.trim().split("\n").count();
+            let group_length = s.trim().split('\n').count();
 
             questions
                 .iter()
@@ -49,10 +49,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .collect::<Vec<usize>>();
 
-    println!(
-        "\nPart 2:\n {:#?}",
-        groups.iter().fold(0, |acc, num| acc + num)
-    );
+    println!("\nPart 2:\n {:#?}", groups.iter().sum::<usize>());
 
     Ok(())
 }
