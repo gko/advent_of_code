@@ -1,5 +1,6 @@
 use regex::Regex;
 use std::collections::HashSet;
+use std::hash::{ Hash, Hasher };
 use std::error::Error;
 use std::fs::read_to_string;
 use std::io;
@@ -11,10 +12,16 @@ fn read_input() -> Result<String, io::Error> {
     Ok(result)
 }
 
-#[derive(Debug, Clone, Hash, Eq)]
+#[derive(Debug, Clone, Eq)]
 struct Bag {
     name: String,
     contains: Option<Vec<(u16, Bag)>>,
+}
+
+impl Hash for Bag {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
 }
 
 impl PartialEq for Bag {
@@ -22,8 +29,6 @@ impl PartialEq for Bag {
         self.name == other.name
     }
 }
-
-type Bags = Vec<Bag>;
 
 impl FromStr for Bag {
     type Err = ();
@@ -40,20 +45,17 @@ impl FromStr for Bag {
 
                 let captured = re.captures(bag);
 
-                match captured {
-                    Some(capture) => {
-                        let count = u16::from_str(&capture["can_contain"]).unwrap_or(0);
-                        let name = &capture["name"];
+                if let Some(capture) = captured {
+                    let count = u16::from_str(&capture["can_contain"]).unwrap_or(0);
+                    let name = &capture["name"];
 
-                        contains.push((
-                            count,
-                            Bag {
-                                name: name.to_string(),
-                                contains: None,
-                            },
-                        ))
-                    }
-                    _ => (),
+                    contains.push((
+                        count,
+                        Bag {
+                            name: name.to_string(),
+                            contains: None,
+                        },
+                    ))
                 }
             }
 
@@ -67,12 +69,15 @@ impl FromStr for Bag {
     }
 }
 
-fn count_bags(bag_name: &str, bags: &Bags, except: &mut HashSet<Bag>) -> u16 {
+fn count_bags(bag_name: &str, bags: &[Bag], except: &mut HashSet<Bag>) -> u16 {
     let bags_count: Vec<Option<u16>> = bags
         .iter()
         .map(|bag| match &bag.contains {
             Some(vec) => {
-                if let Some(_) = except.iter().find(|except_bag| except_bag.name == bag.name) {
+                if except
+                    .iter()
+                    .any(|except_bag| except_bag.name == bag.name)
+                {
                     return None;
                 }
 
@@ -99,7 +104,7 @@ fn count_bags(bag_name: &str, bags: &Bags, except: &mut HashSet<Bag>) -> u16 {
     })
 }
 
-fn count_containing(bag_name: &str, bags: &Bags, initial_name: &str) -> u32 {
+fn count_containing(bag_name: &str, bags: &[Bag], initial_name: &str) -> u32 {
     let bag = bags.iter().find(|b| b.name == bag_name).unwrap();
 
     if let Some(contains) = bag.clone().contains {
