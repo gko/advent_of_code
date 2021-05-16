@@ -47,6 +47,54 @@ fn execute(instructions: &[Instruction]) -> i32 {
     result
 }
 
+fn execute_with_swap(
+    instructions: &[Instruction],
+    swap_position: &usize,
+) -> Result<i32, &'static str> {
+    let mut current_pos: usize = 0;
+    let mut history: HashSet<usize> = HashSet::new();
+    let mut result: i32 = 0;
+
+    loop {
+        if current_pos >= instructions.len() {
+            return Ok(result);
+        }
+
+        if history.contains(&current_pos) {
+            return Err("Infinite loop");
+        }
+
+        history.insert(current_pos);
+
+        let (mut command, count) = instructions[current_pos];
+
+        if current_pos == *swap_position && ["nop", "jmp"].contains(&command) {
+            command = if command == "nop" { "jmp" } else { "nop" };
+        }
+
+        match command {
+            "acc" => {
+                result += i32::from(count);
+                current_pos += 1
+            }
+            "jmp" => {
+                if count < 0 {
+                    let abs_c = count.abs() as usize;
+
+                    if abs_c <= current_pos {
+                        current_pos -= abs_c
+                    } else {
+                        return Err("Out of bounds");
+                    }
+                } else {
+                    current_pos += count as usize
+                }
+            }
+            _ => current_pos += 1,
+        }
+    }
+}
+
 fn main() -> Result<(), Box<dyn Error>> {
     let input_data = read_input().unwrap();
 
@@ -63,7 +111,21 @@ fn main() -> Result<(), Box<dyn Error>> {
         })
         .collect();
 
-    println!("{:#?}", execute(&instructions));
+    println!("Part 1: {:#?}\n\n", execute(&instructions));
+
+    println!(
+        "Part 2: {:#?}",
+        instructions
+            .iter()
+            .enumerate()
+            .find(|(i, _)| match execute_with_swap(&instructions, &i) {
+                Ok(res) => {
+                    println!("Result: {}", res);
+                    true
+                }
+                Err(_) => false,
+            })
+    );
 
     Ok(())
 }
