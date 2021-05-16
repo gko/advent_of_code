@@ -83,9 +83,7 @@ fn count_bags(bag_name: &str, bags: &Bags, except: &mut HashSet<String>) -> u16 
 }
 
 fn count_containing(bag_name: &str, bags: &Bags, initial_name: &str) -> u32 {
-    let contains = bags[bag_name].clone();
-
-    contains.iter().fold(0, |acc, (count, _bag_name)| {
+    bags[bag_name].iter().fold(0, |acc, (count, _bag_name)| {
         let _count = count_containing(&_bag_name, bags, initial_name);
 
         acc + u32::from(*count) + (u32::from(*count) * _count)
