@@ -5,7 +5,7 @@ use std::error::Error;
 type Instruction<'a> = (&'a str, i16);
 
 fn read_input() -> Result<String, std::io::Error> {
-    Ok(std::fs::read_to_string("input.txt")?)
+    std::fs::read_to_string("input.txt")
 }
 
 fn execute(instructions: &[Instruction]) -> i32 {
