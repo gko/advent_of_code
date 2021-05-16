@@ -24,7 +24,7 @@ fn sum_to_target(numbers: &[u64], target: u64, start_step: usize) -> Option<&[u6
         return None;
     }
 
-    for i in 0..&numbers.len() - start_step {
+    for i in 0..numbers.len() - start_step {
         sum = &numbers[i..(i + start_step)];
 
         if sum.iter().sum::<u64>() == target {
