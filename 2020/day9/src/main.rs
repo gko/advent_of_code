@@ -17,6 +17,28 @@ fn find_invalid_number(numbers: &[u64], preamble: usize) -> Option<u64> {
     None
 }
 
+fn find_invalid_number_with_enumerate(numbers: &[u64], preamble: usize) -> Option<u64> {
+    let result = numbers
+        .iter()
+        .enumerate()
+        .skip(preamble)
+        .find(|(idx, num)| {
+            let prev_numbers = &numbers[(idx - preamble)..*idx];
+
+            prev_numbers
+                .into_iter()
+                .combinations(2)
+                .into_iter()
+                .all(|combination| **num != combination[0] + combination[1])
+        });
+
+    if let Some((_, num)) = result {
+        Some(*num)
+    } else {
+        None
+    }
+}
+
 fn sum_to_target(numbers: &[u64], target: u64, start_step: usize) -> Option<&[u64]> {
     let mut sum: &[u64];
 
@@ -46,6 +68,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let invalid_number = find_invalid_number(&numbers, 25).unwrap();
 
     println!("Part 1: {:#?}\n\n", invalid_number);
+
+    println!(
+        "Part 1 with enumerate: {:#?}\n\n",
+        find_invalid_number_with_enumerate(&numbers, 25)
+    );
 
     let sum = sum_to_target(&numbers, invalid_number, 2).unwrap();
     println!(
