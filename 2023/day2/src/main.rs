@@ -96,48 +96,48 @@ fn main() -> Result<(), Box<dyn Error>> {
     let total_green = 13;
     let total_blue = 14;
 
-    let sum_of_ids: u32 = parsed_games.into_iter().fold(0, |acc, Game(id, rounds)| {
-        for round in rounds.into_iter() {
-            if round.red.unwrap_or(0) > total_red
-                || round.green.unwrap_or(0) > total_green
-                || round.blue.unwrap_or(0) > total_blue
-            {
-                return acc;
+    let sum_of_ids: u32 = parsed_games
+        .clone()
+        .into_iter()
+        .fold(0, |acc, Game(id, rounds)| {
+            for round in rounds.into_iter() {
+                if round.red.unwrap_or(0) > total_red
+                    || round.green.unwrap_or(0) > total_green
+                    || round.blue.unwrap_or(0) > total_blue
+                {
+                    return acc;
+                }
             }
-        }
 
-        acc + id as u32
+            acc + id as u32
+        });
 
-        // let sum_red = rounds
-        // .clone()
-        // .into_iter()
-        // .map(|Round { red, .. }| red.unwrap_or(0))
-        // .reduce(|a, b| a + b)
-        // .unwrap_or(0);
+    println!("{}", sum_of_ids);
 
-        // let sum_green = rounds
-        // .clone()
-        // .into_iter()
-        // .map(|Round { green, .. }| green.unwrap_or(0))
-        // .reduce(|a, b| a + b)
-        // .unwrap_or(0);
+    // part 2
+    let sum_of_powers: u32 = parsed_games.into_iter().fold(0, |acc, Game(_, rounds)| {
+        let min_red = rounds
+            .clone()
+            .into_iter()
+            .fold(0, |acc, Round { red, .. }| {
+                std::cmp::max(acc, red.unwrap_or(0))
+            });
 
-        // let sum_blue = rounds
-        // .clone()
-        // .into_iter()
-        // .map(|Round { blue, .. }| blue.unwrap_or(0))
-        // .reduce(|a, b| a + b)
-        // .unwrap_or(0);
+        let min_green = rounds
+            .clone()
+            .into_iter()
+            .fold(0, |acc, Round { green, .. }| {
+                std::cmp::max(acc, green.unwrap_or(0))
+            });
 
-        // if sum_red <= total_red && sum_green <= total_green && sum_blue <= total_blue {
-        // println!("game {}", id);
-        // acc + id as u32
-        // } else {
-        // acc
-        // }
+        let min_blue = rounds.into_iter().fold(0, |acc, Round { blue, .. }| {
+            std::cmp::max(acc, blue.unwrap_or(0))
+        });
+
+        acc + (min_blue as u32 * min_green as u32 * min_red as u32)
     });
 
-    print!("{}", sum_of_ids);
+    println!("{}", sum_of_powers);
 
     Ok(())
 }
