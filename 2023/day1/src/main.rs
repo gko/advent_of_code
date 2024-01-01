@@ -8,25 +8,27 @@ fn replace_nums(s: &str) -> u32 {
     let nums = [
         "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine",
     ];
-    let mut num_pos: Vec<(usize, String)> = vec![];
+    let mut occurences: Vec<(usize, String)> = vec![];
 
     for (idx, ch) in s.chars().enumerate() {
         if ch.is_numeric() {
-            num_pos.push((idx, ch.to_string()))
+            occurences.push((idx, ch.to_string()))
         }
     }
 
     for (digit, num_str) in nums.iter().enumerate() {
-        if let Some(found_idx) = s.rfind(num_str) {
-            num_pos.push((found_idx, digit.to_string()))
+        let mut start = 0;
+        while let Some(found_idx) = s[start..].find(num_str) {
+            occurences.push((start + found_idx, digit.to_string()));
+            start += found_idx + num_str.len();
         }
     }
 
-    num_pos.sort_by(|(a, _), (b, _)| a.cmp(b));
+    occurences.sort_by(|(a, _), (b, _)| a.cmp(b));
 
     let default_value = (0, String::new());
-    let first = num_pos.first().unwrap_or(&default_value);
-    let last = num_pos.last().unwrap_or(&default_value);
+    let first = occurences.first().unwrap_or(&default_value);
+    let last = occurences.last().unwrap_or(&default_value);
 
     let mut combined: String = first.1.clone();
     combined.push_str(&last.1);
