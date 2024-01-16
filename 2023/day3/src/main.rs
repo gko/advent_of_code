@@ -16,20 +16,24 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // part 1
     println!(
-        "{:?} {:?}",
-        input.numbers_with_adjacent_symbols(),
+        "{:?}",
         input
             .numbers_with_adjacent_symbols()
             .iter()
             .copied()
             .reduce(|a, b| a + b)
+            .unwrap_or_default()
     );
 
     // part 2
     println!(
-        "{:?} {:?}",
-        input.numbers_with_adjacent_symbols(),
-        input.get_gears().iter().copied().reduce(|a, b| a + b),
+        "{:?}",
+        input
+            .get_gears()
+            .iter()
+            .copied()
+            .reduce(|a, b| a + b)
+            .unwrap_or_default()
     );
 
     Ok(())

@@ -35,7 +35,7 @@ impl Grid {
             }
         }
 
-        if r + item_length < self.0[r].len() - 1 {
+        if c + item_length < self.0[r].len() - 1 {
             indices_to_check.push((r, c + item_length));
 
             if r > 0 {
